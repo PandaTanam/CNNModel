@@ -23,7 +23,7 @@ http://0.0.0.0/9000
       </li>
     </ul>
     <p>Content-Type Response: application/json</p>
-    <code>
+    ```json
         {
           "user_id": "12345",
           "plant_type": "tomato",
@@ -31,6 +31,6 @@ http://0.0.0.0/9000
           "probability": 0.85,
           "treatment": null
         }
-    </code>
+    ```
   </li>
 </ol>

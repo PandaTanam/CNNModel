@@ -7,7 +7,7 @@ http://0.0.0.0/9000
 
 <ol>
   <li>
-    ## Endpoint: /predict
+    <h2>Endpoint: /predict</h2>
     <p>Method: POST</p>
     <p>Description: Upload an image of a plant leaf to detect the disease and get the prediction result</p>
     <p>Request :</p>
@@ -23,7 +23,7 @@ http://0.0.0.0/9000
       </li>
     </ul>
     <p>Content-Type Response: application/json</p>
-    ```bash
+    <code>
         {
           "user_id": "12345",
           "plant_type": "tomato",
@@ -31,6 +31,6 @@ http://0.0.0.0/9000
           "probability": 0.85,
           "treatment": null
         }
-   ```
+    </code>
   </li>
 </ol>

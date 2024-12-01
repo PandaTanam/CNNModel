@@ -1,9 +1,5 @@
 Flask==2.0.1
 tensorflow==2.6.0
-<<<<<<< HEAD
 google-generativeai
-=======
-google-generativeai==<latest_version>
->>>>>>> 6e45418f1b5c1067d6c627e256eaf2b2c8ab95c7
 numpy==1.19.5
 Pillow==8.4.0

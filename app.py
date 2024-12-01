@@ -9,8 +9,13 @@ from google.cloud import storage
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
+import uuid
+import logging
 
 app = Flask(__name__)
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
 
 # Load models once when the application starts
 mango_model = load_model('models/mango.h5')
@@ -26,12 +31,21 @@ class_names = {
     # 'chili': ['chili_Disease_1', 'chili_Disease_2', 'chili_Disease_3']  
 }
 
+# Check environment variables
+if not os.getenv("FIREBASE_ADMIN_SDK"):
+    raise ValueError("FIREBASE_ADMIN_SDK environment variable is not set.")
+if not os.getenv("GENAI_API_KEY"):
+    raise ValueError("GENAI_API_KEY environment variable is not set.")
+
+# Initialize Google Cloud Storage client
 storage_client = storage.Client()
 BUCKET_NAME = "plantcare-api-bucket"
 
+# Initialize Firebase Admin SDK
 cred = credentials.Certificate(os.getenv("FIREBASE_ADMIN_SDK"))
 firebase_admin.initialize_app(cred)
 
+# Initialize Firestore client
 firestore_client = firestore.client()
 
 @app.route('/predict', methods=['POST'])
@@ -61,7 +75,8 @@ def predict():
 
         disease_name = class_names[plant_type][predicted_class]
 
-        blob = storage_client.bucket(BUCKET_NAME).blob(file.filename)
+        # Use a unique filename for the uploaded image
+        blob = storage_client.bucket(BUCKET_NAME).blob(f"{uuid.uuid4()}_{file.filename}")
         blob.upload_from_file(file)
 
         # Save metadata to Firestore
@@ -85,6 +100,7 @@ def predict():
         return jsonify(result)
 
     except Exception as e:
+        logging.error(f"Error processing the image: {str(e)}")
         return jsonify({'error': f'Error processing the image: {str(e)}'}), 500
 
 @app.route('/treatment', methods=['POST'])
@@ -106,6 +122,7 @@ def treatment():
         treatment_text = treatment_suggestion.text if treatment_suggestion else "No suggestion available."
         
     except Exception as e:
+        logging.error(f"Error generating treatment suggestion: {str(e)}")
         return jsonify({'error': f'Error generating treatment suggestion: {str(e)}'}), 500
 
     # Update the Firestore document with treatment information

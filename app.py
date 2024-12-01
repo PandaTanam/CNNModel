@@ -77,14 +77,19 @@ def treatment():
 
     prompt = f"Langkah-langkah mengatasi/merawat {plant} yang terkena penyakit {disease} dengan penjelasan singkat dan tepat"
 
-    treatment_suggestion = model.generate_content(prompt)
+    try:
+        treatment_suggestion = model.generate_content(prompt)
+        treatment_text = treatment_suggestion.text if treatment_suggestion else "No suggestion available."
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
     for entry in scanned_data :
         if entry['user_id'] == user_id :
-            entry['treatment'] = treatment_suggestion.text
+            entry['treatment'] = treatment_text
             break
 
-    return jsonify({'treatment': treatment_suggestion.text})
+    return jsonify({'treatment': treatment_text})
 
 @app.route('/scanned_data', methods=['GET'])
 def get_scanned_data():

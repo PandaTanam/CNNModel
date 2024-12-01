@@ -4,12 +4,18 @@ from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing import image
 import io
 import google.generativeai as genai
+import os
+from google.cloud import storage
+import firebase_admin
+from firebase_admin import credentials
+from firebase_admin import firestore
 
 app = Flask(__name__)
 
+# Load models once when the application starts
 mango_model = load_model('models/mango.h5')
 tomato_model = load_model('models/tomato.h5')
-# apple_model = load_model('models/apple.h5')
+# chili_model = load_model('models/chili.h5')  # Uncomment if needed
 
 class_names = {
     'mango': ['Anthracnose', 'Bacterial Canker', 'Cutting Weevil', 'Die Back',
@@ -17,10 +23,16 @@ class_names = {
     'tomato': ['Bacterial_spot', 'Early_blight', 'Late_blight', 'Leaf_Mold',
                'Septoria_leaf_spot', 'Spider_mites', 'Target_Spot',
                'Tomato_Yellow_Leaf_Curl_Virus', 'Tomato_mosaic_virus', 'healthy']
-    # 'apple': ['Apple_Disease_1', 'Apple_Disease_2', 'Apple_Disease_3']  
+    # 'chili': ['chili_Disease_1', 'chili_Disease_2', 'chili_Disease_3']  
 }
 
-scanned_data = []
+storage_client = storage.Client()
+BUCKET_NAME = "plantcare-api-bucket"
+
+cred = credentials.Certificate(os.getenv("FIREBASE_ADMIN_SDK"))
+firebase_admin.initialize_app(cred)
+
+firestore_client = firestore.client()
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -36,36 +48,48 @@ def predict():
     if plant_type not in class_names:
         return jsonify({'error': 'Invalid plant type'}), 400
 
-    img = image.load_img(io.BytesIO(file.read()), target_size=(256, 256))
-    img_array = image.img_to_array(img) / 255.0
-    img_array = np.expand_dims(img_array, axis=0)
+    try:
+        img = image.load_img(io.BytesIO(file.read()), target_size=(256, 256))
+        img_array = image.img_to_array(img) / 255.0
+        img_array = np.expand_dims(img_array, axis=0)
 
-    if plant_type == 'mango':
-        model = mango_model
-    elif plant_type == 'tomato':
-        model = tomato_model
-    # elif plant_type == 'apple':
-    #     model = apple_model
+        model = mango_model if plant_type == 'mango' else tomato_model
+        # model = chili_model if plant_type == 'chili' else None  # Uncomment if needed
 
-    predictions = model.predict(img_array)
-    predicted_class = np.argmax(predictions)
+        predictions = model.predict(img_array)
+        predicted_class = np.argmax(predictions)
 
-    disease_name = class_names[plant_type][predicted_class]
+        disease_name = class_names[plant_type][predicted_class]
 
-    result = {
-        'user_id': user_id,
-        'plant_type': plant_type,
-        'disease': disease_name,
-        'probability': float(predictions[0][predicted_class]),
-        'treatment': None
-    }
-    scanned_data.append(result)
+        blob = storage_client.bucket(BUCKET_NAME).blob(file.filename)
+        blob.upload_from_file(file)
 
-    return jsonify(result)
+        # Save metadata to Firestore
+        firestore_client.collection('scanned_images').add({
+            'user_id': user_id,
+            'plant_type': plant_type,
+            'disease': disease_name,
+            'probability': float(predictions[0][predicted_class]),
+            'image_url': blob.public_url
+        })
+
+        result = {
+            'user_id': user_id,
+            'plant_type': plant_type,
+            'disease': disease_name,
+            'probability': float(predictions[0][predicted_class]),
+            'treatment': None,
+            'image_url': blob.public_url 
+        }
+
+        return jsonify(result)
+
+    except Exception as e:
+        return jsonify({'error': f'Error processing the image: {str(e)}'}), 500
 
 @app.route('/treatment', methods=['POST'])
 def treatment():
-    genai.configure(api_key="AIzaSyCXrHQKYgn2VWxe3iGaxz7y55U9ogdJU3I")
+    genai.configure(api_key=os.getenv("GENAI_API_KEY"))  # Use environment variable for API key
     model = genai.GenerativeModel("gemini-1.5-flash")
 
     disease = request.json.get('disease')
@@ -82,17 +106,28 @@ def treatment():
         treatment_text = treatment_suggestion.text if treatment_suggestion else "No suggestion available."
         
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': f'Error generating treatment suggestion: {str(e)}'}), 500
 
-    for entry in scanned_data :
-        if entry['user_id'] == user_id :
-            entry['treatment'] = treatment_text
-            break
+    # Update the Firestore document with treatment information
+    scanned_images_ref = firestore_client.collection('scanned_images')
+    query = scanned_images_ref.where('user_id', '==', user_id).where('disease', '==', disease).limit(1).get()
+
+    for doc in query:
+        doc_ref = scanned_images_ref.document(doc.id)
+        doc_ref.update({'treatment': treatment_text})
 
     return jsonify({'treatment': treatment_text})
 
 @app.route('/scanned_data', methods=['GET'])
 def get_scanned_data():
+    # Retrieve all scanned data from Firestore
+    scanned_images_ref = firestore_client.collection('scanned_images')
+    docs = scanned_images_ref.stream()
+
+    scanned_data = []
+    for doc in docs:
+        scanned_data.append(doc.to_dict())
+
     return jsonify(scanned_data)
 
 if __name__ == '__main__':

@@ -3,7 +3,7 @@ name: Deploy to Google Cloud Run
 on:
   push:
     branches:
-      - dev-cc  # Change this to your default branch if different
+      - dev-cc  
 
 jobs:
   build-and-deploy:
@@ -16,8 +16,8 @@ jobs:
     - name: Google Cloud Auth
       uses: google-github-actions/auth@v2
       with:
-        credentials_json: '${{ secrets.GCP_SA_KEY }}'  # Use your service account key here
-        project_id: '${{ secrets.GCP_PROJECT_ID }}'     # Set the project ID
+        credentials_json: '${{ secrets.GCP_SA_KEY }}'  
+        project_id: '${{ secrets.GCP_PROJECT_ID }}'     
 
     - name: Build Docker image
       run: |

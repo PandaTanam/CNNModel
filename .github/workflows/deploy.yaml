@@ -32,10 +32,10 @@ name: 'Deploy to Cloud Run'
 on:
   push:
     branches:
-      - '"dev-cc"'
+      - "dev-cc"
 
 env:
-  PROJECT_ID: 'plantcare-443106 ' # TODO: update to your Google Cloud project ID
+  PROJECT_ID: 'plantcare-443106' # TODO: update to your Google Cloud project ID
   REGION: 'asia-southeast2' # TODO: update to your region
   SERVICE: 'plantcare-api' # TODO: update to your service name
 

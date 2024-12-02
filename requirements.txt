@@ -1,0 +1,7 @@
+Flask
+tensorflow
+google-generativeai
+numpy
+Pillow
+google.cloud
+firebase_admin

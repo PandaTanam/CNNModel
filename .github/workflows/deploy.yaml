@@ -2,9 +2,8 @@ name: Deploy to Cloud Run
 
 env:
   SERVICE_NAME: plantcare-api
-  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}  
-  REPOSITORY_NAME: plantcare-api 
-  DOCKER_IMAGE_URL: asia-southeast2-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/plantcare-api 
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }} 
+  DOCKER_IMAGE_URL: asia-southeast2-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/plantcare-api/api:${{ github.sha }}  # Include the image name and tag
 
 on:
   push:
@@ -56,15 +55,15 @@ jobs:
       - name: Build and Push Docker Image
         run: |
           echo "Building Docker image..."
-          docker build -t ${{ env.DOCKER_IMAGE_URL }}:latest -f Dockerfile .
+          docker build -t ${{ env.DOCKER_IMAGE_URL }} -f Dockerfile .
           echo "Pushing Docker image..."
-          docker push ${{ env.DOCKER_IMAGE_URL }}:latest
+          docker push ${{ env.DOCKER_IMAGE_URL }}
 
       - name: Deploy to Cloud Run
         run: |
           echo "Deploying to Cloud Run service: $SERVICE_NAME"
           gcloud run deploy $SERVICE_NAME \
-            --image ${{ env.DOCKER_IMAGE_URL }}:latest \
+            --image ${{ env.DOCKER_IMAGE_URL }} \
             --platform managed \
             --region asia-southeast2 \
             --allow-unauthenticated

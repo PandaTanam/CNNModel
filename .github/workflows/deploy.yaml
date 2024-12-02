@@ -35,16 +35,16 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t ${{secrets.GCP_REGION}}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_SERVICE_NAME }}/${{ secrets.GCP_SERVICE_NAME }} .
+          docker build -t ${{secrets.GCP_REGION}}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/plantcare-api/${{ secrets.GCP_SERVICE_NAME }} .
 
       - name: Push Docker image
         run: |
-          docker push ${{secrets.GCP_REGION}}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_SERVICE_NAME }}/${{ secrets.GCP_SERVICE_NAME }}
+          docker push ${{secrets.GCP_REGION}}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/plantcare-api/${{ secrets.GCP_SERVICE_NAME }}
 
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy ${{ secrets.GCP_SERVICE_NAME }} \
-            --image ${{secrets.GCP_REGION}}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_SERVICE_NAME }}${{ secrets.GCP_SERVICE_NAME }} \
+            --image ${{secrets.GCP_REGION}}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/plantcare-api/${{ secrets.GCP_SERVICE_NAME }} \
             --platform managed \
             --region ${{ secrets.GCP_REGION }} \
             --allow-unauthenticated

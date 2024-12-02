@@ -2,9 +2,10 @@ name: Deploy to Cloud Run
 
 env:
   SERVICE_NAME: plantcare-api
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}  
   REPOSITORY_NAME: plantcare-api 
-  DOCKER_IMAGE_URL: asia-southeast2-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/plantcare-api
-  
+  DOCKER_IMAGE_URL: asia-southeast2-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/plantcare-api 
+
 on:
   push:
     branches:
@@ -47,6 +48,10 @@ jobs:
         run: |
           echo "Authenticating Docker to Google Cloud..."
           gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin asia-southeast2-docker.pkg.dev
+
+      - name: Debug Docker Image URL
+        run: |
+          echo "Docker Image URL: ${{ env.DOCKER_IMAGE_URL }}"
 
       - name: Build and Push Docker Image
         run: |

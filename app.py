@@ -29,7 +29,7 @@ class_names = {
 }
 
 # Set Google Cloud credentials
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = 'key/plantcare-443106-29fd09534606.json'
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = 'plantcare-443106-29fd09534606.json'
 
 # Initialize Google Cloud Storage client
 storage_client = storage.Client()

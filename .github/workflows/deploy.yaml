@@ -47,5 +47,5 @@ jobs:
             --image ${{secrets.GCP_REGION}}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/plantcare-api/${{ secrets.GCP_SERVICE_NAME }} \
             --platform managed \
             --region ${{ secrets.GCP_REGION }} \
-            --allow-unauthenticated
+            --allow-unauthenticated \
             --timeout 360s

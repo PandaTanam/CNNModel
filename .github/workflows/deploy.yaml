@@ -43,9 +43,10 @@ jobs:
             echo "Artifact Registry repository already exists."
           fi
 
-      - name: Configure Docker
+      - name: Configure Docker Authentication
         run: |
-          gcloud auth configure-docker
+          echo "Authenticating Docker to Google Cloud..."
+          gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin asia-southeast2-docker.pkg.dev
 
       - name: Build and Push Docker Image
         run: |

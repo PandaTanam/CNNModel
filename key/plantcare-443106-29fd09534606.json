@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "plantcare-443106",
+  "private_key_id": "29fd09534606ed9f802d092d0464764b8784e0f9",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDWfGt0fQH3Ye0P\nV54ia9v48e/4bloL6BaqfzfdFHf/SrAtyPQPsQ53EwXb4+JLQz46ZuABUNXiBedF\nHJILqj+csnOhm4h0/xZRe6/TQrtZMx5xhF6YMLWG/QQE0chaGFK6HGNLaANzXKAB\n0rnTOZgrap4HONIUaGcYoRVaFzYTrkfs83E+rAMkv8Hqd6wPaFbXV0o9hqDKftxO\nuqoe3aaUJv4hIeiX0ZHoJe9o7BLOo0JmyZbgARWfbjcKCspRFdMBD+8RUFmAheAg\nANLZDZ86K9PangXtdM0/rm4i5AclJfQPOtqtblNfZl3iLeU4JdVxXmi6WyV5DWft\nEuSzm6pBAgMBAAECggEABibl7x6pyIZwxfyhnsOguNR5qVLC9u32fnftKoRsh7BE\n+t81buDJdS1gwOSZqEZ6ubKbMLZ4mAXK0x7lanu83Nn6epNrN83cPkSRr7nNhVqz\nwBZHn05gWomVzKyWtkzVzJxFVdObK7snpL2+Ujpn7LDfbP4aenbfJCP0qJObW7eZ\nx3Ao9Em3pKhnlMD7IOrjstZLW0TTYPuFkirzSh+dM3HuM5287TRfbWKBw6lAfo+b\nuP0+V695oFAqURkXnZ+sPY712dLAbCRiCtR33dJRF4jNHi5K1+DSse1N0Kdualpp\ndGH9HD+sjqbuPsIqhXzfebzPSA+jVMqww1DxSQ72dQKBgQD2eWpMrEEAsRO6qxCe\nqDXR7bassAU9vtj89TuCFW2uU5xjiCufRyvHjNhGcPkJDl/WCdkQWFYwS96Hzt2o\nJ2Va40OJQ4G9HsTo1pCuzjoXHEdLU0eOT0ksf3I4dXcGq2q4Y6l8s3C/wiR+Yqcl\nxF3V8P5ueVQCD+XpNsbpWmnuDQKBgQDexoRJ7b4yKzaZ+BDCTx+kK8gm2yRZo/z1\nJeDgmJWdnFk3NS2kIFy1HDkb/aINjkStr6T/eZAXpI254tYl6aQ7EpHQo5vY5eII\n3DatNmpn9mmi/FX0CWVlVrkylbrBhIw9gK0dzKtPrhQGjvY2xC5HzWstLAgj7lfv\nv1wBEXUUBQKBgB71kUygNmoH1BqWcjf7mQcNfOykD4R5/HeJtjfYyTYkenhmGlSf\nc/hU0LXIav+gNpmEEyficLEQVptoeJ8uk6Se91S+jgVbYBB/Ix1R+in8+1eS1mIh\nw2c7evVsi87iqT0QB7IKOBdeI4dcjPJJgB/nbY4i31KC/LYWk1WsbbHhAoGAHd56\nEDt7G9jlakFzZcocEPP50xPgzNAK84ePni13KfmzkI5lvzLDm1jcY19fYffoR21c\nbxCKfFEI25qJYe3woib8PAAjvjIcW1nDTvgTzjqgsUSp9Z1o5ex5ykl/D8FI2Fov\nW+Z8NaO+dZ6nbnJhTilBrH3R3ZdwXOnIWTBRBU0CgYEAsrPfTB5z8KnZfcjS0InB\n3HmMgrXsBPApUepPrxoNUUwh/kQ4/kNHHpivhJiz1zgMAuGngW/Qo/ne+kd3Yqsx\nsK8q+/Wit/ns4F8s1G0R3fat8uOQql1XEC3GuyYck4UWnbH4aR84dHhuodz7unAb\nRjhw7nLmki+5o5hjlvXTGm4=\n-----END PRIVATE KEY-----\n",
+  "client_email": "plantcare-api-github@plantcare-443106.iam.gserviceaccount.com",
+  "client_id": "104449749235617405891",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/plantcare-api-github%40plantcare-443106.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

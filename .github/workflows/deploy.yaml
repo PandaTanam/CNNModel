@@ -3,7 +3,7 @@ name: Deploy to Cloud Run
 env:
   SERVICE_NAME: plantcare-api
   PROJECT_ID: plantcare-443106
-  DOCKER_IMAGE_URL:asia-southeast2-docker.pkg.dev/plantcare-443106/plantcare-api/plantcare-api
+  DOCKER_IMAGE_URL: asia-southeast2-docker.pkg.dev/plantcare-443106/plantcare-api/plantcare-api
 
 on:
   push:

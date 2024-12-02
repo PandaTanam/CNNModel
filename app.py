@@ -31,18 +31,14 @@ class_names = {
     # 'chili': ['chili_Disease_1', 'chili_Disease_2', 'chili_Disease_3']  
 }
 
-# Check environment variables
-if not os.getenv("FIREBASE_ADMIN_SDK"):
-    raise ValueError("FIREBASE_ADMIN_SDK environment variable is not set.")
-if not os.getenv("GENAI_API_KEY"):
-    raise ValueError("GENAI_API_KEY environment variable is not set.")
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = 'key/service-account.json'
 
 # Initialize Google Cloud Storage client
 storage_client = storage.Client()
 BUCKET_NAME = "plantcare-api-bucket"
 
 # Initialize Firebase Admin SDK
-cred = credentials.Certificate(os.getenv("FIREBASE_ADMIN_SDK"))
+cred = credentials.Certificate('key/firebase-sdk.json')
 firebase_admin.initialize_app(cred)
 
 # Initialize Firestore client

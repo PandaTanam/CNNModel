@@ -21,6 +21,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: List files
+        run: |
+          ls -la  # This will help you verify the presence of Dockerfile.prod
+
       - name: Google Cloud Auth
         uses: 'google-github-actions/auth@v2'
         with:

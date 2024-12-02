@@ -13,4 +13,4 @@ COPY . .
 EXPOSE 8080
 
 # Use gunicorn for production
-CMD ["gunicorn", "-b", "0.0.0.0:9000", "app:app"]
+CMD ["gunicorn", "-b", "0.0.0.0:8080", "app:app"]

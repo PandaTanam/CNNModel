@@ -68,4 +68,4 @@ jobs:
             --platform managed \
             --region asia-southeast2 \
             --allow-unauthenticated
-            --timeout 300  # Increase timeout if needed
+            --timeout 500  # Increase timeout if needed

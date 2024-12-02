@@ -2,7 +2,7 @@
 
 ## Base URL
 ```bash
-http://0.0.0.0:9000
+https://plantcare-api-github-920676430522.asia-southeast2.run.app
 ```
 
 ## API Reference

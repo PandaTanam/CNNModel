@@ -5,7 +5,7 @@ env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}  
   REPOSITORY_NAME: plantcare-api 
   DOCKER_IMAGE_URL: asia-southeast2-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/plantcare-api /api:${{ github.sha }}
-  
+
 on:
   push:
     branches:

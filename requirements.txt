@@ -5,3 +5,4 @@ numpy
 Pillow
 google.cloud
 firebase_admin
+gunicorn

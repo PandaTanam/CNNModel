@@ -10,7 +10,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Expose the port
-EXPOSE 9000 
+EXPOSE 8080 
 
 # Use gunicorn for production, binding to the correct port
-CMD ["gunicorn", "-b", "0.0.0.0:9000", "app:app"]
+CMD ["gunicorn", "-b", ":8080", "app:app"]

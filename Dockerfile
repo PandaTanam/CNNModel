@@ -14,4 +14,5 @@ COPY . .
 # Expose the port that the app runs on
 EXPOSE 8080 
 
-CMD ["gunicorn", "-b", ":8080", "app:app"]
+# Command to run the application
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8080", "--workers", "1"]

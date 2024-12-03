@@ -16,6 +16,7 @@ import logging
 import requests
 import io
 from datetime import datetime
+from dotenv import load_dotenv
 
 # Initialize FastAPI app
 app = FastAPI()
@@ -41,7 +42,8 @@ storage_client = storage.Client()
 BUCKET_NAME = "plantcare-api-bucket"
 
 # Initialize Firestore client
-service_account_info = json.loads(os.environ['GCP_SA_KEY'])
+load_dotenv()
+service_account_info = json.loads(os.getenv('GCP_SA_KEY'))
 cred = credentials.Certificate(service_account_info) 
 firebase_admin.initialize_app(cred)
 db = firestore.client()
@@ -188,4 +190,4 @@ async def delete_prediction(user_id: str):
         raise HTTPException(status_code=500, detail=f'Error deleting predictions: {str(e)}')
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
+    uvicorn.run(app, host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))

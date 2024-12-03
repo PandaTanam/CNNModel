@@ -15,4 +15,4 @@ COPY . .
 EXPOSE 8080 
 
 # Command to run the application
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8080", "--workers", "1"]
+CMD ["uvicorn", "-b", "0.0.0.0:8080", "app:app"]

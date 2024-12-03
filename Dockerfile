@@ -15,4 +15,4 @@ COPY . .
 EXPOSE 8080 
 
 # Command to run the application
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8080", "--proxy-headers"]
+CMD ["gunicorn", "-b", ":8080", "app:app"]

@@ -1,16 +1,23 @@
-from flask import Flask, request, jsonify
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException
+from fastapi.responses import JSONResponse
+import uvicorn
+from pydantic import BaseModel
 import numpy as np
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing import image
 import os
 import google.generativeai as genai
-from google.cloud import storage
+from google.cloud import storage, firestore
+import firebase_admin
+from firebase_admin import credentials, firestore
 import uuid
 import logging
 import requests
 import io
+from datetime import datetime
 
-app = Flask(__name__)
+# Initialize FastAPI app
+app = FastAPI()
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -28,35 +35,41 @@ class_names = {
                'Tomato_Yellow_Leaf_Curl_Virus', 'Tomato_mosaic_virus', 'healthy']
 }
 
-# Set Google Cloud credentials
-# os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = 'plantcare-443106-29fd09534606.json'
-
 # Initialize Google Cloud Storage client
 storage_client = storage.Client()
 BUCKET_NAME = "plantcare-api-bucket"
 
-# Store prediction results in memory (for demonstration purposes)
-predictions_data = {}
+# Initialize Firestore client
+cred = credentials.Certificate('service-account.json') 
+firebase_admin.initialize_app(cred)
+db = firestore.client()
 
-@app.route('/predict', methods=['POST'])
-def predict():
-    # Validate request
-    if 'file' not in request.files:
-        return jsonify({'error': 'No file provided'}), 400
+# Pydantic models for request and response
+class TreatmentRequest(BaseModel):
+    disease: str
+    plant: str
+    user_id: str
 
-    file = request.files['file']
-    if file.filename == '':
-        return jsonify({'error': 'No file selected'}), 400
+class PredictionResponse(BaseModel):
+    user_id: str
+    plant_type: str
+    disease: str
+    probability: float
+    image_url: str
+    treatment: str = None
+    scanned_data: str  
 
-    plant_type = request.form.get('plant_type')
-    user_id = request.form.get('user_id')
+@app.post('/predict/', response_model=PredictionResponse)
+async def predict(file: UploadFile = File(...), plant_type: str = Form(...), user_id: str = Form(...)):
+    """Predict the disease of a plant based on an uploaded image and automatically run treatment suggestion."""
+    
     if plant_type not in class_names:
-        return jsonify({'error': 'Invalid plant type'}), 400
+        raise HTTPException(status_code=400, detail='Invalid plant type')
 
     try:
         # Upload the image to Google Cloud Storage
         blob = storage_client.bucket(BUCKET_NAME).blob(f"{uuid.uuid4()}_{file.filename}")
-        blob.upload_from_file(file)
+        blob.upload_from_file(file.file)
 
         # Get the public URL of the uploaded image
         image_url = blob.public_url
@@ -74,60 +87,103 @@ def predict():
         predicted_class = np.argmax(predictions)
         disease_name = class_names[plant_type][predicted_class]
 
-        # Store the prediction result
+        # Create a unique document name using UUID
+        document_id = str(uuid.uuid4())
+
+        # Get the current timestamp and format it to YYYY:MM:DD
+        scanned_data = datetime.now().strftime('%Y:%m:%d') 
+
+        # Store the prediction result in Firestore
         result = {
             'user_id': user_id,
             'plant_type': plant_type,
             'disease': disease_name,
             'probability': float(predictions[0][predicted_class]),
             'image_url': image_url,
-            'treatment': None 
+            'treatment': None,
+            'scanned_data': scanned_data 
         }
 
-        # Store the result in memory using user_id as the key
-        predictions_data[user_id] = result
+        db.collection('predictions').document(document_id).set(result)
 
-        return jsonify(result)
+        treatment_text = await generate_treatment(disease_name, plant_type, user_id)
+        result['treatment'] = treatment_text
+
+        db.collection('predictions').document(document_id).update({'treatment': treatment_text})
+
+        return JSONResponse(content=result)
 
     except Exception as e:
         logging.error(f"Error processing the image: {str(e)}")
-        return jsonify({'error': f'Error processing the image: {str(e)}'}), 500
+        raise HTTPException(status_code=500, detail=f'Error processing the image: {str(e)}')
 
-@app.route('/treatment', methods=['POST'])
-def treatment():
-    genai.configure(api_key="AIzaSyCXrHQKYgn2VWxe3iGaxz7y55U9ogdJU3I")
+async def generate_treatment(disease: str, plant: str, user_id: str) -> str:
+    """Generate treatment suggestions based on the disease and plant type."""
+    genai.configure(api_key="AIzaSyCXrHQKYgn2VWxe3iGaxz7y55U9ogdJU3I")  
     model = genai.GenerativeModel("gemini-1.5-flash")
-
-    # Validate request
-    disease = request.json.get('disease')
-    plant = request.json.get('plant')
-    user_id = request.json.get('user_id')
-
-    if not disease or not plant or not user_id:
-        return jsonify({'error': 'Plant, Disease, and User ID must be provided'}), 400
-
-    # Check if prediction data exists for the user
-    if user_id not in predictions_data:
-        return jsonify({'error': 'No prediction data found for this user ID.'}), 404
 
     prompt = f"Langkah-langkah mengatasi/merawat {plant} yang terkena penyakit {disease} dengan penjelasan singkat dan tepat"
 
     try:
         treatment_suggestion = model.generate_content(prompt)
-        treatment_text = treatment_suggestion.text if treatment_suggestion else "No suggestion available."
-
-        # Append treatment information to the prediction result
-        predictions_data[user_id]['treatment'] = treatment_text
-
+        return treatment_suggestion.text if treatment_suggestion else "No suggestion available."
     except Exception as e:
         logging.error(f"Error generating treatment suggestion: {str(e)}")
-        return jsonify({'error': f'Error generating treatment suggestion: {str(e)}'}), 500
+        return "Error generating treatment suggestion."
 
-    return jsonify({'treatment': treatment_text})
+@app.get('/scanned_data/')
+async def get_scanned_data():
+    """Fetch all predictions from the database."""
+    predictions = db.collection('predictions').stream()
+    results = []
 
-@app.route('/scanned_data', methods=['GET'])
-def get_scanned_data():
-    return jsonify(predictions_data)
+    for doc in predictions:
+        data = doc.to_dict()
+        data['id'] = doc.id 
+        results.append(data)
+
+    return JSONResponse(content=results)
+
+@app.get('/scanned_data/{user_id}', response_model=list[PredictionResponse])
+async def get_prediction(user_id: str):
+    """Fetch all predictions for a specific user ID."""
+    try:
+        predictions_ref = db.collection('predictions').where('user_id', '==', user_id).stream()
+        results = []
+
+        for doc in predictions_ref:
+            prediction_data = doc.to_dict()
+            prediction_data['id'] = doc.id 
+            results.append(prediction_data)
+
+        if not results:
+            raise HTTPException(status_code=404, detail='No prediction data found for this user ID.')
+
+        return JSONResponse(content=results)
+
+    except Exception as e:
+        logging.error(f"Error fetching predictions: {str(e)}")
+        raise HTTPException(status_code=500, detail=f'Error fetching predictions: {str(e)}')
+
+@app.delete('/scanned_data/{user_id}')
+async def delete_prediction(user_id: str):
+    """Delete all predictions for a specific user ID."""
+    try:
+        predictions_ref = db.collection('predictions').where('user_id', '==', user_id).stream()
+        deleted_count = 0
+
+        for doc in predictions_ref:
+            doc.reference.delete() 
+            deleted_count += 1
+
+        if deleted_count == 0:
+            raise HTTPException(status_code=404, detail='No prediction data found for this user ID.')
+
+        return JSONResponse(content={'message': f'Deleted {deleted_count} prediction(s) successfully.'})
+
+    except Exception as e:
+        logging.error(f"Error deleting predictions: {str(e)}")
+        raise HTTPException(status_code=500, detail=f'Error deleting predictions: {str(e)}')
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
+    uvicorn.run(app, host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))

@@ -13,4 +13,4 @@ COPY . .
 EXPOSE 8080 
 
 # Use gunicorn for production, binding to the correct port
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8080", "--reload"]
+CMD ["uvicorn", "-b", ":8080", "app:app"]

@@ -1,22 +1,22 @@
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException
-from fastapi.responses import JSONResponse
-import uvicorn
-from pydantic import BaseModel
-import numpy as np
-from tensorflow.keras.models import load_model
-from tensorflow.keras.preprocessing import image
 import os
 import json
-import google.generativeai as genai
-from google.cloud import storage, firestore
-import firebase_admin
-from firebase_admin import credentials, firestore
 import uuid
 import logging
-import requests
 import io
 from datetime import datetime
-from dotenv import load_dotenv
+
+import numpy as np
+import requests
+import uvicorn
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel
+from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing import image
+import google.generativeai as genai
+from google.cloud import storage, firestore, secretmanager
+import firebase_admin
+from firebase_admin import credentials, firestore
 
 # Initialize FastAPI app
 app = FastAPI()
@@ -37,14 +37,29 @@ class_names = {
                'Tomato_Yellow_Leaf_Curl_Virus', 'Tomato_mosaic_virus', 'healthy']
 }
 
+# Initialize the Secret Manager client
+client = secretmanager.SecretManagerServiceClient()
+
+# Access the secret
+secret_name = "GCP_SA_KEY" 
+project_id = "plantcare-443106"  
+secret_version = "latest"
+
+# Build the resource name of the secret
+name = f"projects/{project_id}/secrets/{secret_name}/versions/{secret_version}"
+
+# Access the secret version
+response = client.access_secret_version(name=name)
+
+# Get the secret payload
+service_account_info = response.payload.data.decode('UTF-8')
+
 # Initialize Google Cloud Storage client
 storage_client = storage.Client()
 BUCKET_NAME = "plantcare-api-bucket"
 
 # Initialize Firestore client
-load_dotenv()
-service_account_info = json.loads(os.getenv('GCP_SA_KEY'))
-cred = credentials.Certificate(service_account_info) 
+cred = credentials.Certificate(json.loads(service_account_info))
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 

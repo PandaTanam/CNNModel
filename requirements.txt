@@ -9,3 +9,4 @@ firebase_admin
 multipart
 pydantic
 gunicorn
+google-cloud-secret-manager

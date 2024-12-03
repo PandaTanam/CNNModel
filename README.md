@@ -24,7 +24,9 @@ None
         "plant_type": "mango",
         "disease": "Bacterial Canker",
         "probability": 0.6879741549491882,
-        "treatment": "Penyakit Bacterial Spot pada tomat sulit disembuhkan sepenuhnya..."
+        "image_url": "https://example.com/image.jpg",
+        "treatment": "Penyakit Bacterial Spot pada tomat sulit disembuhkan sepenuhnya...",
+        "scanned_data": "2024:12:03"
     },
     ...
 ]
@@ -48,7 +50,9 @@ GET /scanned_data/${user_id}
     "plant_type": "mango",
     "disease": "Bacterial Canker",
     "probability": 0.6879741549491882,
-    "treatment": null
+    "image_url": "https://example.com/image.jpg",
+    "treatment": null,
+    "scanned_data": "2024:12:03"
 }
 ```
 
@@ -65,6 +69,17 @@ POST /predict
 | `user_id`    | `string` | **Required**. The ID of the user         |
 | `file`       | `file`   | **Required**. The image file of the plant leaf |
 
+#### Example Request
+```json
+POST /predict
+Content-Type: multipart/form-data
+
+{
+    "plant_type": "tomato",
+    "user_id": "12345",
+    "file": <image_file>
+}
+```
 #### Example Response
 ```json
 {
@@ -72,26 +87,32 @@ POST /predict
     "plant_type": "tomato",
     "disease": "Bacterial_spot",
     "probability": 0.85,
-    "treatment": null
+    "image_url": "https://example.com/image.jpg",
+    "treatment": null,
+    "scanned_data": "2024:12:03"
 }
 ```
 
-### Get Treatment Suggestion Based on The Detected Disease and Plant Type
-
+### Delete All Predictions for a Specific User ID
 ```http
-POST /treatment
+DELETE /scanned_data/{user_id}
 ```
 
 #### Parameters
-| Parameter  | Type     | Description                |
-| :--------- | :------- | :------------------------- |
-| `user_id`  | `string` | **Required**. The ID of the user |
-| `plant`    | `string` | **Required**. The type of plant |
-| `disease`  | `string` | **Required**. The disease of the plant |
+| Parameter    | Type     | Description                              |
+| :----------- | :------- | :--------------------------------------- |
+| `user_id`    | `string` | **Required**. The ID of the user         |
 
 #### Example Response
 ```json
 {
-    "treatment": "Langkah-langkah mengatasi/merawat tanaman yang terkena penyakit..."
+    "message": "Deleted 3 prediction(s) successfully."
+}
+```
+
+#### Example Error Response
+```json
+{
+    "detail": "Invalid plant type"
 }
 ```

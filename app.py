@@ -189,6 +189,6 @@ def delete_prediction(user_id: str):
         logging.error(f"Error deleting predictions: {str(e)}")
         return jsonify({'detail': f'Error deleting predictions: {str(e)}'}), 500
 
-if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 8080)) 
-    app.run(host='0.0.0.0', port=port)
+# if __name__ == '__main__':
+#     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
+

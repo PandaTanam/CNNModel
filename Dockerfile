@@ -18,5 +18,8 @@ COPY . .
 # Expose the port that the app runs on
 EXPOSE 8080 
 
+# Health check to ensure the app is running
+HEALTHCHECK CMD curl --fail http://localhost:$PORT/ || exit 1
+
 # Use Uvicorn for production, binding to the correct host and port
 CMD ["sh", "-c", "uvicorn app:app --host $HOST --port $PORT"]

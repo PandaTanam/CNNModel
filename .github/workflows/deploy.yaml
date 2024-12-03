@@ -10,10 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3  # Updated to the latest version
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v3  # Updated to the latest version
         with:
           python-version: '3.12'
 
@@ -21,7 +21,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-      
+
       - name: Set up Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v0.2.0
         with:
@@ -35,16 +35,19 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t ${{secrets.GCP_REGION}}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/plantcare-api/${{ secrets.GCP_SERVICE_NAME }} .
+          docker build -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/plantcare-api/${{ secrets.GCP_SERVICE_NAME }} .
 
       - name: Push Docker image
         run: |
-          docker push ${{secrets.GCP_REGION}}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/plantcare-api/${{ secrets.GCP_SERVICE_NAME }}
+          docker push ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/plantcare-api/${{ secrets.GCP_SERVICE_NAME }}
 
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy ${{ secrets.GCP_SERVICE_NAME }} \
-            --image ${{secrets.GCP_REGION}}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/plantcare-api/${{ secrets.GCP_SERVICE_NAME }} \
+            --image ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/plantcare-api/${{ secrets.GCP_SERVICE_NAME }} \
             --platform managed \
             --region ${{ secrets.GCP_REGION }} \
             --allow-unauthenticated \
+            --memory 512Mi \  # Specify memory limit
+            --timeout 900s \  # Specify timeout for deployment
+            --max-instances 3  # Optional: Set max instances

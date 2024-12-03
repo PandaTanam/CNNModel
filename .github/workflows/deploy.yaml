@@ -48,6 +48,4 @@ jobs:
             --platform managed \
             --region ${{ secrets.GCP_REGION }} \
             --allow-unauthenticated \
-            --memory 512Mi \  # Specify memory limit
-            --timeout 900s \  # Specify timeout for deployment
-            --max-instances 3  # Optional: Set max instances
+            --timeout 900s  # Specify timeout for deployment

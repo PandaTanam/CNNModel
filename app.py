@@ -6,6 +6,7 @@ import numpy as np
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing import image
 import os
+import json
 import google.generativeai as genai
 from google.cloud import storage, firestore
 import firebase_admin
@@ -40,7 +41,8 @@ storage_client = storage.Client()
 BUCKET_NAME = "plantcare-api-bucket"
 
 # Initialize Firestore client
-cred = credentials.Certificate('service-account.json') 
+service_account_info = json.loads(os.environ['GCP_SA_KEY'])
+cred = credentials.Certificate(service_account_info) 
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 

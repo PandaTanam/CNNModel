@@ -7,3 +7,5 @@ Pillow
 google.cloud
 firebase_admin
 multipart
+pydantic
+gunicorn

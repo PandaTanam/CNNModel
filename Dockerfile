@@ -1,5 +1,5 @@
 # Use a specific version of Python for consistency
-FROM python:3.12 AS base
+FROM python:3.12-slim AS base
 
 # Set the working directory
 WORKDIR /app

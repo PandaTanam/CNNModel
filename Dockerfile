@@ -8,7 +8,7 @@ WORKDIR /app
 COPY requirements.txt .
 
 # Install dependencies
-RUN pip -r requirements.txt
+RUN pip install -r requirements.txt
 
 # Copy application code
 COPY . .

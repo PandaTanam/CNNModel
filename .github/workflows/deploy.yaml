@@ -49,3 +49,4 @@ jobs:
             --region ${{ secrets.GCP_REGION }} \
             --allow-unauthenticated \
             --timeout 900s  # Specify timeout for deployment
+            --set-env-vars GOOGLE_APPLICATION_CREDENTIALS=${{ secrets.GCP_SA_KEY }}

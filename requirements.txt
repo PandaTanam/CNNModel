@@ -4,9 +4,7 @@ tensorflow
 google-generativeai
 numpy
 Pillow
-google.cloud
-firebase_admin
-multipart
+firebase-admin
 pydantic
 gunicorn
 google-cloud-secret-manager

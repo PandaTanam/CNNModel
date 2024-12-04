@@ -79,6 +79,10 @@ class PredictionResponse(BaseModel):
     treatment: str = None
     scanned_data: str  
 
+@app.get('/')
+def index():
+    return {'message': 'Welcome to PlantCare API!'}
+
 @app.post('/predict/', response_model=PredictionResponse)
 async def predict(file: UploadFile = File(...), plant_type: str = Form(...), user_id: str = Form(...)):
     """Predict the disease of a plant based on an uploaded image and automatically run treatment suggestion."""
@@ -204,5 +208,5 @@ async def delete_prediction(user_id: str):
     except Exception as e:
         logging.error(f"Error deleting predictions: {str(e)}")
         raise HTTPException(status_code=500, detail=f'Error deleting predictions: {str(e)}')
-    
-uvicorn.run(app, host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
+
+uvicorn.run(app, host='127.0.0.1', port=8080)

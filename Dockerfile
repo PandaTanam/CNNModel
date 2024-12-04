@@ -8,7 +8,7 @@ WORKDIR /app
 COPY requirements.txt .
 
 # Install dependencies
-RUN pip freeze > requirements.txt
+RUN pip -r requirements.txt
 
 # Copy application code
 COPY . .

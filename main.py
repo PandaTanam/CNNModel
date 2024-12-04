@@ -8,6 +8,7 @@ from datetime import datetime
 import numpy as np
 import requests
 import uvicorn
+import gunicorn
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
@@ -203,3 +204,5 @@ async def delete_prediction(user_id: str):
     except Exception as e:
         logging.error(f"Error deleting predictions: {str(e)}")
         raise HTTPException(status_code=500, detail=f'Error deleting predictions: {str(e)}')
+    
+uvicorn.run(app, host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))

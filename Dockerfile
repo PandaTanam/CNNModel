@@ -1,5 +1,5 @@
 # Use a specific version of Python for consistency
-FROM python:3.12-slim
+FROM python:3.9
 
 # Set the working directory
 WORKDIR /app
@@ -8,7 +8,7 @@ WORKDIR /app
 COPY requirements.txt .
 
 # Install dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip freeze > requirements.txt
 
 # Copy application code
 COPY . .
@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 8080 
 
 # Command to run the application using Gunicorn with Uvicorn workers
-CMD ["gunicorn", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "main:app", "-b", "0.0.0.0:8080"]
+CMD ["gunicorn", "main:app", "-b", "0.0.0.0:8080"]

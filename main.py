@@ -79,9 +79,10 @@ class PredictionResponse(BaseModel):
     treatment: str = None
     scanned_data: str  
 
-@app.get('/')
-def index():
-    return {'message': 'Welcome to PlantCare API!'}
+@app.get("/")
+async def read_root():
+    logging.info("Received request at root endpoint")
+    return {"message": "Hello, World!"}
 
 @app.post('/predict/', response_model=PredictionResponse)
 async def predict(file: UploadFile = File(...), plant_type: str = Form(...), user_id: str = Form(...)):
@@ -208,3 +209,5 @@ async def delete_prediction(user_id: str):
     except Exception as e:
         logging.error(f"Error deleting predictions: {str(e)}")
         raise HTTPException(status_code=500, detail=f'Error deleting predictions: {str(e)}')
+    
+# uvicorn.run(app, host="127.0.0.1", port=8080)

@@ -28,6 +28,7 @@ logging.basicConfig(level=logging.INFO)
 # Load models once when the application starts
 mango_model = load_model('models/mango.h5')
 tomato_model = load_model('models/tomato.h5')
+chili_model = load_model('models/chili.h5')
 
 # Class names for predictions
 class_names = {
@@ -35,7 +36,8 @@ class_names = {
               'Gall Midge', 'Healthy', 'Powdery Mildew', 'Sooty Mould'],  
     'tomato': ['Bacterial_spot', 'Early_blight', 'Late_blight', 'Leaf_Mold',
                'Septoria_leaf_spot', 'Spider_mites', 'Target_Spot',
-               'Tomato_Yellow_Leaf_Curl_Virus', 'Tomato_mosaic_virus', 'healthy']
+               'Tomato_Yellow_Leaf_Curl_Virus', 'Tomato_mosaic_virus', 'healthy'],
+    'chili': ['Bacterial_spot', 'Healthy', 'Late_blight', 'Leaf_Mold']
 }
 
 # Initialize the Secret Manager client
@@ -210,4 +212,4 @@ async def delete_prediction(user_id: str):
         logging.error(f"Error deleting predictions: {str(e)}")
         raise HTTPException(status_code=500, detail=f'Error deleting predictions: {str(e)}')
     
-# uvicorn.run(app, host="127.0.0.1", port=8080)
+uvicorn.run(app, host="127.0.0.1", port=8080)

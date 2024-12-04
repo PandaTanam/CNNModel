@@ -1,41 +1,33 @@
-name: Deploy to Google Cloud Run
+name: Deploy to Cloud Run
 
 on:
   push:
     branches:
-      - dev-cc
+      - dev-cc 
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Set up Google Cloud SDK
-        uses: google-github-actions/setup-gcloud@v0.2.0
-        with:
-          service_account_key: ${{ secrets.GCP_SA_KEY }}
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
-          export_default_credentials: true
+    - name: Set up Google Cloud SDK
+      uses: google-github-actions/setup-gcloud@v0.2.0
+      with:
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+        export_default_credentials: true
 
-      - name: Authenticate Docker to Artifact Registry
-        run: |
-          gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev
+    - name: Build Docker image
+      run: |
+        gcloud builds submit --tag gcr.io/${{ secrets.GCP_PROJECT_ID }}/fastapi-app .  # Replace with your project ID
 
-      - name: Build Docker image
-        run: |
-          docker build -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/plantcare-api/${{ secrets.GCP_SERVICE_NAME }} .
-
-      - name: Push Docker image
-        run: |
-          docker push ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/plantcare-api/${{ secrets.GCP_SERVICE_NAME }}
-
-      - name: Deploy to Cloud Run
-        run: |
-          gcloud run deploy ${{ secrets.GCP_SERVICE_NAME }} \
-            --image ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/plantcare-api/${{ secrets.GCP_SERVICE_NAME }} \
-            --platform managed \
-            --allow-unauthenticated \
-            --region ${{ secrets.GCP_REGION }} \
-            --timeout 900s  # Specify timeout for deployment
+    - name: Deploy to Cloud Run
+      run: |
+        gcloud run deploy fastapi-app \
+          --image gcr.io/${{ secrets.GCP_PROJECT_ID }}/fastapi-app \
+          --platform managed \
+          --region YOUR_REGION \  # Replace with your preferred region
+          --allow-unauthenticated

@@ -29,5 +29,5 @@ jobs:
         gcloud run deploy fastapi-app \
           --image gcr.io/${{ secrets.GCP_PROJECT_ID }}/fastapi-app \
           --platform managed \
-          --region YOUR_REGION \  # Replace with your preferred region
+          --region ${{ secrets.GCP_REGION }} \  
           --allow-unauthenticated

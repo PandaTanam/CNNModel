@@ -208,5 +208,3 @@ async def delete_prediction(user_id: str):
     except Exception as e:
         logging.error(f"Error deleting predictions: {str(e)}")
         raise HTTPException(status_code=500, detail=f'Error deleting predictions: {str(e)}')
-
-uvicorn.run(app, host='127.0.0.1', port=8080)

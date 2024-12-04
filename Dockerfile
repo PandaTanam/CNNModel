@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 8080 
 
 # Command to run the application using Gunicorn with Uvicorn workers
-CMD ["python3", "main.py"]
+CMD ["gunicorn", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "main:app", "-b", "0.0.0.0:8080"]

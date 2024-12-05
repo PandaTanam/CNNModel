@@ -17,6 +17,7 @@ from google.cloud import storage, firestore
 import firebase_admin
 from firebase_admin import credentials
 from dotenv import load_dotenv
+import uvicorn
 
 load_dotenv()
 
@@ -47,6 +48,7 @@ storage_client = storage.Client()
 BUCKET_NAME = "plantcare-api-bucket"
 
 db = firestore.Client(project="PlantCare")
+
 
 # Pydantic models for request and response
 class TreatmentRequest(BaseModel):
@@ -204,3 +206,5 @@ async def delete_prediction(user_id: str):
     except Exception as e:
         logging.error(f"Error deleting predictions: {str(e)}")
         raise HTTPException(status_code=500, detail=f'Error deleting predictions: {str(e)}')
+
+uvicorn.run(app, host="127.0.0.1", port=8080)

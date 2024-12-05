@@ -63,3 +63,6 @@ jobs:
 
       - name: Show Output
         run: echo ${{ steps.deploy.outputs.url }}
+
+      - name: Cleanup
+        run: rm gcp_credentials.json

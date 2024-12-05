@@ -29,7 +29,9 @@ jobs:
         uses: 'google-github-actions/auth@v2'
         with:
           workload_identity_provider: '${{ env.WORKLOAD_IDENTITY_PROVIDER }}'
+          service_account: 'plantcare-api-github'
           project_id: '${{ env.PROJECT_ID }}' 
+  
 
       # Authenticate Docker to Google Artifact Registry
       - name: 'Authenticate Docker to Google Artifact Registry'

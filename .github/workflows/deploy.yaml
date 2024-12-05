@@ -26,8 +26,7 @@ jobs:
 
       - name: Set up Google Cloud credentials
         run: |
-          mkdir -p /workspace
-          echo "${{ secrets.GCP_SA_KEY }}" > /workspace/gcp_credentials.json
+          echo "${{ secrets.GCP_SA_KEY }}" > gcp_credentials.json
 
       - name: Google Auth
         id: auth
@@ -60,7 +59,7 @@ jobs:
           region: ${{ env.REGION }}
           image: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE }}:${{ github.sha }}
           env_vars: |
-            GOOGLE_APPLICATION_CREDENTIALS=/workspace/gcp_credentials.json
+            GOOGLE_APPLICATION_CREDENTIALS=gcp_credentials.json
 
       - name: Show Output
         run: echo ${{ steps.deploy.outputs.url }}

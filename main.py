@@ -7,17 +7,15 @@ from datetime import datetime
 
 import numpy as np
 import requests
-import uvicorn
-import gunicorn
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing import image
 import google.generativeai as genai
-from google.cloud import storage, firestore, secretmanager
+from google.cloud import storage, firestore
 import firebase_admin
-from firebase_admin import credentials, firestore
+from firebase_admin import credentials
 
 # Initialize FastAPI app
 app = FastAPI()
@@ -37,9 +35,8 @@ class_names = {
     'tomato': ['Bacterial_spot', 'Early_blight', 'Late_blight', 'Leaf_Mold',
                'Septoria_leaf_spot', 'Spider_mites', 'Target_Spot',
                'Tomato_Yellow_Leaf_Curl_Virus', 'Tomato_mosaic_virus', 'healthy'],
-    'chili': ['Bacterial_spot', 'Healthy', 'Late_blight', 'Leaf_Mold']
+    'chili': ['Healthy', 'Leaf Curl', 'Leaf Spot', 'Whitefly', 'Yellowish']
 }
-
 
 # Get the service account key from the environment variable
 service_account_info = os.environ.get('GCP_SA_KEY')
@@ -93,13 +90,24 @@ async def predict(file: UploadFile = File(...), plant_type: str = Form(...), use
         img_array = image.img_to_array(img) / 255.0
         img_array = np.expand_dims(img_array, axis=0)
 
-        # Select the appropriate model
-        model = mango_model if plant_type == 'mango' else tomato_model
+        # Select the appropriate model based on plant type
+        if plant_type == 'mango':
+            model = mango_model
+        elif plant_type == 'tomato':
+            model = tomato_model
+        elif plant_type == 'chili':
+            model = chili_model
+        else:
+            raise HTTPException(status_code=400, detail='Invalid plant type')
 
         # Make predictions
         predictions = model.predict(img_array)
         predicted_class = np.argmax(predictions)
+
+        # Get the disease name and replace underscores with spaces for tomato diseases
         disease_name = class_names[plant_type][predicted_class]
+        if plant_type == 'tomato':
+            disease_name = disease_name.replace('_', ' ')  # Replace underscores with spaces
 
         # Create a unique document name using UUID
         document_id = str(uuid.uuid4())
@@ -198,5 +206,3 @@ async def delete_prediction(user_id: str):
     except Exception as e:
         logging.error(f"Error deleting predictions: {str(e)}")
         raise HTTPException(status_code=500, detail=f'Error deleting predictions: {str(e)}')
-    
-# uvicorn.run(app, host="127.0.0.1", port=8080)

@@ -78,7 +78,7 @@ jobs:
           token_format: 'access_token'
           project_id: ${{ env.PROJECT_ID }}
           workload_identity_provider: 'projects/920676430522/locations/global/workloadIdentityPools/github-pool/providers/github' # Update to your workload identity provider
-          service_account: 'plantcare-api-github@plantcare-443106.iam.gserviceaccount.com' # e.g. - my-service-account@my-project.iam.gserviceaccount.com
+          service_account: 'firebase-adminsdk-aviun@plantcare-443106.iam.gserviceaccount.com' # e.g. - my-service-account@my-project.iam.gserviceaccount.com
 
       # NOTE: Alternative option - authentication via credentials json
       # - name: Google Auth

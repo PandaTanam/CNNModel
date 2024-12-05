@@ -1,3 +1,6 @@
-Dockerfile
-README.md
-.github
+__pycache__
+*.pyc
+*.pyo
+.env
+.git
+.github/workflows/deploy.yml  # Optional: Ignore workflow file if not needed in the image

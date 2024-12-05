@@ -1,17 +1,23 @@
 # Use the official Python image from the Docker Hub
-FROM python:3.11
+FROM python:3.9-slim
 
-ENV PYTHONUNBUFFERED True
+# Set the working directory
+WORKDIR /app
 
-ENV APP_HOME /app
-WORKDIR $APP_HOME
-COPY . ./
+# Copy the requirements file
+COPY requirements.txt .
+
+COPY models ./models
+
 
 # Install the dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Copy the application code
+COPY . .
+
 # Expose the port that the app runs on
-ENV PORT 8080
+EXPOSE 8080
 
 # Command to run the application
-CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 main:app
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]

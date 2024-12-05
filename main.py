@@ -16,6 +16,9 @@ import google.generativeai as genai
 from google.cloud import storage, firestore
 import firebase_admin
 from firebase_admin import credentials
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Initialize FastAPI app
 app = FastAPI()

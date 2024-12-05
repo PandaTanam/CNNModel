@@ -1,59 +1,43 @@
-name: 'Build and Deploy to Cloud Run'
+name: Deploy to Cloud Run
 
 on:
   push:
     branches:
       - dev-cc
 
-env:
-  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }} # Update to your Google Cloud project ID
-  REGION: ${{ secrets.GCP_REGION }} # Update to your region
-  SERVICE: ${{ secrets.GCP_SERVICE_NAME }} # Update to your service name
-  WORKLOAD_IDENTITY_PROVIDER: 'projects/920676430522/locations/global/workloadIdentityPools/github-pool/providers/github' # Update to your workload identity provider
-
 jobs:
-  deploy:
-    runs-on: 'ubuntu-latest'
-
-    permissions:
-      contents: 'read'
-      id-token: 'write'
+  build:
+    runs-on: ubuntu-latest
 
     steps:
-      - name: 'Checkout'
-        uses: 'actions/checkout@v4'
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      # Authenticate to Google Cloud using Workload Identity Federation
-      - id: 'auth'
-        name: 'Authenticate to Google Cloud'
-        uses: 'google-github-actions/auth@v2'
-        with:
-          workload_identity_provider: '${{ env.WORKLOAD_IDENTITY_PROVIDER }}'
-          service_account: 'plantcare-api-github@plantcare-443106.iam.gserviceaccount.com'
-          project_id: '${{ env.PROJECT_ID }}' 
-  
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
 
-      # Authenticate Docker to Google Artifact Registry
-      - name: 'Authenticate Docker to Google Artifact Registry'
-        run: |
-          gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://${{ env.REGION }}-docker.pkg.dev
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
 
-      # Build and Push Docker Container
-      - name: 'Build and Push Container'
-        run: |-
-          DOCKER_TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/plantcare-api/${{ env.SERVICE }}:${{ github.sha }}"
-          docker build --tag "${DOCKER_TAG}" .
-          docker push "${DOCKER_TAG}"
+    - name: Build Docker image
+      run: |
+        docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_SERVICE_NAME }} .
 
-      # Deploy to Cloud Run
-      - name: 'Deploy to Cloud Run'
-        uses: 'google-github-actions/deploy-cloudrun@v2'
-        with:
-          service: '${{ env.SERVICE }}'
-          region: '${{ env.REGION }}'
-          image: '${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/plantcare-api/${{ env.SERVICE }}:${{ github.sha }}'
+    - name: Push Docker image
+      run: |
+        echo ${{ secrets.GCP_SA_KEY }} | base64 --decode > $HOME/gcp-key.json
+        gcloud auth activate-service-account --key-file=$HOME/gcp-key.json
+        gcloud auth configure-docker
+        docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_SERVICE_NAME }}
 
-      # Show output of the deployment
-      - name: 'Show output'
-        run: |
-          echo "Cloud Run URL: ${{ steps.deploy.outputs.url }}"
+    - name: Deploy to Cloud Run
+      run: |
+        gcloud run deploy ${{ secrets.GCP_SERVICE_NAME }} \
+          --image gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_SERVICE_NAME }} \
+          --platform managed \
+          --region ${{ secrets.GCP_REGION }} \
+          --allow-unauthenticated

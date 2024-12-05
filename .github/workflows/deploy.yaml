@@ -34,7 +34,7 @@ jobs:
       # Authenticate Docker to Google Artifact Registry
       - name: 'Authenticate Docker to Google Artifact Registry'
         run: |
-          gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin ${{ env.REGION }}-docker.pkg.dev
+          gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://${{ env.REGION }}-docker.pkg.dev
 
       # Build and Push Docker Container
       - name: 'Build and Push Container'

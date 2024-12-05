@@ -1,5 +1,5 @@
 # Use the official Python image from the Docker Hub
-FROM python:3.9-slim
+FROM python:3.10
 
 # Set the working directory
 WORKDIR /app
@@ -8,7 +8,6 @@ WORKDIR /app
 COPY requirements.txt .
 
 COPY models ./models
-
 
 # Install the dependencies
 RUN pip install --no-cache-dir -r requirements.txt

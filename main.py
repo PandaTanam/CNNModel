@@ -41,17 +41,12 @@ class_names = {
     'chili': ['Healthy', 'Leaf Curl', 'Leaf Spot', 'Whitefly', 'Yellowish']
 }
 
-# Get the service account key from the environment variable
-service_account_info = os.environ.get('GCP_SA_KEY')
 
 # Initialize Google Cloud Storage client
 storage_client = storage.Client()
 BUCKET_NAME = "plantcare-api-bucket"
 
-# Initialize Firestore client
-cred = credentials.Certificate(json.loads(service_account_info))
-firebase_admin.initialize_app(cred)
-db = firestore.client()
+db = firestore.Client(project="PlantCare")
 
 # Pydantic models for request and response
 class TreatmentRequest(BaseModel):

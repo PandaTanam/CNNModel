@@ -76,6 +76,7 @@ jobs:
         uses: 'google-github-actions/auth@v2'
         with:
           token_format: 'access_token'
+          project_id: ${{ env.PROJECT_ID }}
           workload_identity_provider: 'projects/920676430522/locations/global/workloadIdentityPools/github-pool/providers/github' # Update to your workload identity provider
           service_account: 'plantcare-api-github' # e.g. - my-service-account@my-project.iam.gserviceaccount.com
 

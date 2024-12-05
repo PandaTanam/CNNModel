@@ -40,22 +40,9 @@ class_names = {
     'chili': ['Bacterial_spot', 'Healthy', 'Late_blight', 'Leaf_Mold']
 }
 
-# Initialize the Secret Manager client
-client = secretmanager.SecretManagerServiceClient()
 
-# Access the secret
-secret_name = "GCP_SA_KEY" 
-project_id = "plantcare-443106"  
-secret_version = "latest"
-
-# Build the resource name of the secret
-name = f"projects/{project_id}/secrets/{secret_name}/versions/{secret_version}"
-
-# Access the secret version
-response = client.access_secret_version(name=name)
-
-# Get the secret payload
-service_account_info = response.payload.data.decode('UTF-8')
+# Get the service account key from the environment variable
+service_account_info = os.environ.get('GCP_SA_KEY')
 
 # Initialize Google Cloud Storage client
 storage_client = storage.Client()

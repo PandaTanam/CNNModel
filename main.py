@@ -46,6 +46,8 @@ class_names = {
 storage_client = storage.Client()
 BUCKET_NAME = "plantcare-api-bucket"
 
+
+firebase_admin.initialize_app()
 db = firestore.Client(project="PlantCare")
 
 # Pydantic models for request and response
@@ -205,4 +207,4 @@ async def delete_prediction(user_id: str):
         logging.error(f"Error deleting predictions: {str(e)}")
         raise HTTPException(status_code=500, detail=f'Error deleting predictions: {str(e)}')
 
-# uvicorn.run(app, host="127.0.0.1", port=8080)
+uvicorn.run(app, host="127.0.0.1", port=8080)

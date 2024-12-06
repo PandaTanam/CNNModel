@@ -144,7 +144,7 @@ async def generate_treatment(disease: str, plant: str, user_id: str) -> str:
     genai.configure(api_key="AIzaSyCXrHQKYgn2VWxe3iGaxz7y55U9ogdJU3I")  
     model = genai.GenerativeModel("gemini-1.5-flash")
 
-    prompt = f"Langkah-langkah mengatasi/merawat {plant} yang terkena penyakit {disease} dengan penjelasan singkat dan tepat"
+    prompt = f"Langkah-langkah mengatasi/merawat {plant} yang terkena penyakit {disease} dengan penjelasan singkat dan tepat dalam bentuk paragraf"
 
     try:
         treatment_suggestion = model.generate_content(prompt)

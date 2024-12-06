@@ -19,19 +19,14 @@ from firebase_admin import credentials, firestore
 from dotenv import load_dotenv
 import uvicorn
 
-
-# Initialize FastAPI app
 app = FastAPI()
 
-# Set up logging
 logging.basicConfig(level=logging.INFO)
 
-# Load models once when the application starts
 mango_model = load_model('models/mango.h5')
 tomato_model = load_model('models/tomato.h5')
 chili_model = load_model('models/chili.h5')
 
-# Class names for predictions
 class_names = {
     'mango': ['Anthracnose', 'Bacterial Canker', 'Cutting Weevil', 'Die Back',
               'Gall Midge', 'Healthy', 'Powdery Mildew', 'Sooty Mould'],  
@@ -41,16 +36,12 @@ class_names = {
     'chili': ['Healthy', 'Leaf Curl', 'Leaf Spot', 'Whitefly', 'Yellowish']
 }
 
-
-# Initialize Google Cloud Storage client
 storage_client = storage.Client()
 BUCKET_NAME = "plantcare-api-bucket"
-
 
 firebase_admin.initialize_app()
 db = firestore.client()
 
-# Pydantic models for request and response
 class TreatmentRequest(BaseModel):
     disease: str
     plant: str
@@ -78,19 +69,15 @@ async def predict(file: UploadFile = File(...), plant_type: str = Form(...), use
         raise HTTPException(status_code=400, detail='Invalid plant type')
 
     try:
-        # Upload the image to Google Cloud Storage
         blob = storage_client.bucket(BUCKET_NAME).blob(f"{uuid.uuid4()}_{file.filename}")
         blob.upload_from_file(file.file)
 
-        # Get the public URL of the uploaded image
         image_url = blob.public_url
 
-        # Load the image for prediction
         img = image.load_img(io.BytesIO(requests.get(image_url).content), target_size=(256, 256))
         img_array = image.img_to_array(img) / 255.0
         img_array = np.expand_dims(img_array, axis=0)
 
-        # Select the appropriate model based on plant type
         if plant_type == 'mango':
             model = mango_model
         elif plant_type == 'tomato':
@@ -100,22 +87,17 @@ async def predict(file: UploadFile = File(...), plant_type: str = Form(...), use
         else:
             raise HTTPException(status_code=400, detail='Invalid plant type')
 
-        # Make predictions
         predictions = model.predict(img_array)
         predicted_class = np.argmax(predictions)
 
-        # Get the disease name and replace underscores with spaces for tomato diseases
         disease_name = class_names[plant_type][predicted_class]
         if plant_type == 'tomato':
-            disease_name = disease_name.replace('_', ' ')  # Replace underscores with spaces
+            disease_name = disease_name.replace('_', ' ')  
 
-        # Create a unique document name using UUID
         document_id = str(uuid.uuid4())
 
-        # Get the current timestamp and format it to YYYY:MM:DD
         scanned_data = datetime.now().strftime('%Y:%m:%d') 
 
-        # Store the prediction result in Firestore
         result = {
             'user_id': user_id,
             'plant_type': plant_type,

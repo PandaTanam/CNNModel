@@ -19,7 +19,6 @@ from firebase_admin import credentials
 from dotenv import load_dotenv
 import uvicorn
 
-load_dotenv()
 
 # Initialize FastAPI app
 app = FastAPI()
@@ -48,7 +47,6 @@ storage_client = storage.Client()
 BUCKET_NAME = "plantcare-api-bucket"
 
 db = firestore.Client(project="PlantCare")
-
 
 # Pydantic models for request and response
 class TreatmentRequest(BaseModel):

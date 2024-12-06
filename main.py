@@ -15,7 +15,7 @@ from tensorflow.keras.preprocessing import image
 import google.generativeai as genai
 from google.cloud import storage, firestore
 import firebase_admin
-from firebase_admin import credentials
+from firebase_admin import credentials, firestore
 from dotenv import load_dotenv
 import uvicorn
 
@@ -48,7 +48,7 @@ BUCKET_NAME = "plantcare-api-bucket"
 
 
 firebase_admin.initialize_app()
-db = firestore.Client(project="PlantCare")
+db = firestore.client()
 
 # Pydantic models for request and response
 class TreatmentRequest(BaseModel):
@@ -207,4 +207,4 @@ async def delete_prediction(user_id: str):
         logging.error(f"Error deleting predictions: {str(e)}")
         raise HTTPException(status_code=500, detail=f'Error deleting predictions: {str(e)}')
 
-# uvicorn.run(app, host="127.0.0.1", port=8080)
+uvicorn.run(app, host="127.0.0.1", port=8080)

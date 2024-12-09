@@ -1,3 +1,5 @@
+import os
+import json
 import uuid
 import logging
 import io
@@ -13,18 +15,15 @@ from tensorflow.keras.preprocessing import image
 import google.generativeai as genai
 from google.cloud import storage, firestore
 import firebase_admin
-from firebase_admin import firestore
+from firebase_admin import credentials, firestore
+from dotenv import load_dotenv
+import uvicorn
 
 app = FastAPI()
 
 logging.basicConfig(level=logging.INFO)
 
-# Initialize model variables
-mango_model = None
-tomato_model = None
-chili_model = None
 
-# Class names for diseases
 class_names = {
     'mango': ['Anthracnose', 'Bacterial Canker', 'Cutting Weevil', 'Die Back',
               'Gall Midge', 'Healthy', 'Powdery Mildew', 'Sooty Mould'],  
@@ -34,13 +33,12 @@ class_names = {
     'chili': ['Healthy', 'Leaf Curl', 'Leaf Spot', 'Whitefly', 'Yellowish']
 }
 
-# Initialize Google Cloud Storage and Firestore
 storage_client = storage.Client()
 BUCKET_NAME = "plantcare-api-bucket"
+
 firebase_admin.initialize_app()
 db = firestore.client()
 
-# Pydantic models for request and response
 class TreatmentRequest(BaseModel):
     disease: str
     plant: str
@@ -60,38 +58,26 @@ async def read_root():
     logging.info("Received request at root endpoint")
     return {"message": "Hello, World!"}
 
-def load_models():
-    """Load models lazily to reduce startup time."""
-    global mango_model, tomato_model, chili_model
-    if mango_model is None:
-        mango_model = load_model('models/mango.h5')
-    if tomato_model is None:
-        tomato_model = load_model('models/tomato.h5')
-    if chili_model is None:
-        chili_model = load_model('models/chili.h5')
-
 @app.post('/predict/', response_model=PredictionResponse)
 async def predict(file: UploadFile = File(...), plant_type: str = Form(...), user_id: str = Form(...)):
     """Predict the disease of a plant based on an uploaded image and automatically run treatment suggestion."""
+    mango_model = load_model('models/mango.h5')
+    tomato_model = load_model('models/tomato.h5')
+    chili_model = load_model('models/chili.h5')
     
-    load_models()  # Load models when the predict endpoint is called
-
     if plant_type not in class_names:
         raise HTTPException(status_code=400, detail='Invalid plant type')
 
     try:
-        # Upload the image to Google Cloud Storage
         blob = storage_client.bucket(BUCKET_NAME).blob(f"{uuid.uuid4()}_{file.filename}")
         blob.upload_from_file(file.file)
 
         image_url = blob.public_url
 
-        # Load and preprocess the image
         img = image.load_img(io.BytesIO(requests.get(image_url).content), target_size=(256, 256))
         img_array = image.img_to_array(img) / 255.0
         img_array = np.expand_dims(img_array, axis=0)
 
-        # Select the appropriate model based on plant type
         if plant_type == 'mango':
             model = mango_model
         elif plant_type == 'tomato':
@@ -101,7 +87,6 @@ async def predict(file: UploadFile = File(...), plant_type: str = Form(...), use
         else:
             raise HTTPException(status_code=400, detail='Invalid plant type')
 
-        # Make predictions
         predictions = model.predict(img_array)
         predicted_class = np.argmax(predictions)
 
@@ -110,6 +95,7 @@ async def predict(file: UploadFile = File(...), plant_type: str = Form(...), use
             disease_name = disease_name.replace('_', ' ')  
 
         document_id = str(uuid.uuid4())
+
         scanned_data = datetime.now().strftime('%Y:%m:%d') 
 
         result = {
@@ -122,14 +108,11 @@ async def predict(file: UploadFile = File(...), plant_type: str = Form(...), use
             'scanned_data': scanned_data 
         }
 
-        # Save the result to Firestore
         db.collection('predictions').document(document_id).set(result)
 
-        # Generate treatment suggestion
         treatment_text = await generate_treatment(disease_name, plant_type, user_id)
         result['treatment'] = treatment_text
 
-        # Update Firestore with treatment suggestion
         db.collection('predictions').document(document_id).update({'treatment': treatment_text})
 
         return JSONResponse(content=result)
@@ -140,7 +123,7 @@ async def predict(file: UploadFile = File(...), plant_type: str = Form(...), use
 
 async def generate_treatment(disease: str, plant: str, user_id: str) -> str:
     """Generate treatment suggestions based on the disease and plant type."""
-    genai.configure(api_key="YOUR_API_KEY")  # Replace with your actual API key
+    genai.configure(api_key="AIzaSyCXrHQKYgn2VWxe3iGaxz7y55U9ogdJU3I")  
     model = genai.GenerativeModel("gemini-1.5-flash")
 
     prompt = f"Langkah-langkah mengatasi/merawat {plant} yang terkena penyakit {disease} dengan penjelasan singkat dan tepat dalam bentuk paragraf"
@@ -205,8 +188,18 @@ async def delete_prediction(user_id: str):
     except Exception as e:
         logging.error(f"Error deleting predictions: {str(e)}")
         raise HTTPException(status_code=500, detail=f'Error deleting predictions: {str(e)}')
+    
+# @app.get('/news/')
+# async def get_news():
+#     """Fetch the latest news articles from the database."""
+#     news = db.collection('news').stream()
+#     results = []
 
-# Uncomment the following line to run the application locally
-# if __name__ == "__main__":
-#     import uvicorn
-#     uvicorn.run(app, host="127.0.0.1", port=8080)
+#     for doc in news:
+#         data = doc.to_dict()
+#         data['id'] = doc.id 
+#         results.append(data)
+
+#     return JSONResponse(content=results)
+
+# uvicorn.run(app, host="127.0.0.1", port=8080)

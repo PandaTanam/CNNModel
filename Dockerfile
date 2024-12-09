@@ -1,17 +1,14 @@
-# Use a smaller base image
-FROM python:3.12-slim
+# Use the official Python image from the Docker Hub
+FROM python:3.12
 
-# Set environment variables
 ENV PYTHONUNBUFFERED True
+
 ENV APP_HOME /app
 WORKDIR $APP_HOME
-
-# Copy only requirements first for better caching
-COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy the rest of the application code
 COPY . ./
+
+# Install the dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Expose the port that the app runs on
 ENV PORT 8080

@@ -1,118 +1,107 @@
-# API Documentation
+# Plant Disease Identification API
 
-## Base URL
-```bash
-https://plantcare-api-github-920676430522.asia-southeast2.run.app
-```
+Welcome to the Plant Disease Identification API! 🌱
 
-## API Reference
+This API is designed to help users identify diseases in plants (specifically mango, tomato, and chili) by uploading images. It utilizes machine learning models to predict the disease and provides treatment suggestions based on the identified disease.
 
-### Get All Plant Disease Identification Data
+## Features
 
-```http
-GET /scanned_data
-```
+- Upload an image of a plant to predict its disease.
+- Retrieve treatment suggestions for the identified disease.
+- Store and manage prediction data in Firestore.
+- Fetch historical prediction data for specific users.
+- Delete prediction data for specific users.
+- Access the latest news articles related to plant health.
 
-#### Parameters
-None
+## Technologies Used
 
-#### Example Response
-```json
-[
-    {
-        "user_id": "1",
-        "plant_type": "mango",
-        "disease": "Bacterial Canker",
-        "probability": 0.6879741549491882,
-        "image_url": "https://example.com/image.jpg",
-        "treatment": "Penyakit Bacterial Spot pada tomat sulit disembuhkan sepenuhnya...",
-        "scanned_data": "2024:12:03"
-    },
-    ...
-]
-```
+- FastAPI: A modern web framework for building APIs with Python.
+- TensorFlow: For loading and using pre-trained machine learning models.
+- Google Cloud Storage: For storing uploaded images.
+- Firestore: For storing prediction data and treatment suggestions.
+- Vertex AI: For generating treatment suggestions using generative models.
+- Docker: For containerizing the application.
 
-### Get Plant Disease Identification Data By User ID
+## Getting Started
 
-```http
-GET /scanned_data/${user_id}
-```
+### Prerequisites
 
-#### Parameters
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `user_id` | `string` | **Required**. The ID of the user |
+- Python 3.12 or higher
+- Google Cloud account with Firestore and Cloud Storage enabled
+- Docker (for containerization)
 
-#### Example Response
-```json
-{
-    "user_id": "1",
-    "plant_type": "mango",
-    "disease": "Bacterial Canker",
-    "probability": 0.6879741549491882,
-    "image_url": "https://example.com/image.jpg",
-    "treatment": null,
-    "scanned_data": "2024:12:03"
-}
-```
+### Installation
 
-### Predict Plant Disease
+1. **Clone the Repository:**
+    ```bash
+    git clone https://github.com/PlantCare-Bangkit/Plant-Disease-Identification-Model.git
+    
+    cd plant-disease-identification-api
+    ```
 
-```http
-POST /predict
-```
 
-#### Parameters
-| Parameter    | Type     | Description                              |
-| :----------- | :------- | :--------------------------------------- |
-| `plant_type` | `string` | **Required**. The type of plant          |
-| `user_id`    | `string` | **Required**. The ID of the user         |
-| `file`       | `file`   | **Required**. The image file of the plant leaf |
+2. **Install Dependencies:**
+   Make sure you have Python installed. Then, install the required packages using pip:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-#### Example Request
-```json
-POST /predict
-Content-Type: multipart/form-data
+3. **Set Up Environment Variables:**
+   Create a `.env` file in the root directory and add your Google Cloud credentials and other necessary configurations:
+   ```plaintext
+   GOOGLE_APPLICATION_CREDENTIALS=path/to/your/credentials.json
+   
+   BUCKET_NAME=your-bucket-name
+   ```
 
-{
-    "plant_type": "tomato",
-    "user_id": "12345",
-    "file": <image_file>
-}
-```
-#### Example Response
-```json
-{
-    "user_id": "12345",
-    "plant_type": "tomato",
-    "disease": "Bacterial_spot",
-    "probability": 0.85,
-    "image_url": "https://example.com/image.jpg",
-    "treatment": null,
-    "scanned_data": "2024:12:03"
-}
-```
 
-### Delete All Predictions for a Specific User ID
-```http
-DELETE /scanned_data/{user_id}
-```
+4. **Run the Application:**
+   You can run the application using Uvicorn:
+    ```bash
+    uvicorn main:app --host 0.0.0.0 --port 8080
+    ```
 
-#### Parameters
-| Parameter    | Type     | Description                              |
-| :----------- | :------- | :--------------------------------------- |
-| `user_id`    | `string` | **Required**. The ID of the user         |
+    Alternatively, you can build and run the Docker container:
+    ```bash
+    docker build -t plantcare-api .
+    
+    docker run -p 8080:8080 plantcare-api
+    ```
 
-#### Example Response
-```json
-{
-    "message": "Deleted 3 prediction(s) successfully."
-}
-```
+## API Endpoints
 
-#### Example Error Response
-```json
-{
-    "detail": "Invalid plant type"
-}
-```
+### 1. Root Endpoint
+- **GET** `/`
+  - Returns a simple greeting message.
+
+### 2. Predict Disease
+- **POST** `/predict/`
+  - **Parameters:**
+    - `file`: Image file of the plant (required).
+    - `plant_type`: Type of plant (mango, tomato, chili) (required).
+    - `user_id`: Unique identifier for the user (required).
+  - **Response:** Returns a JSON object with the predicted disease, probability, image URL, and treatment suggestion.
+
+### 3. Get Scanned Data
+- **GET** `/scanned_data/`
+  - Returns all predictions stored in the database.
+
+### 4. Get Predictions by User ID
+- **GET** `/scanned_data/{user_id}`
+  - **Parameters:**
+    - `user_id`: Unique identifier for the user.
+  - **Response:** Returns all predictions for the specified user.
+
+### 5. Delete Predictions by User ID
+- **DELETE** `/scanned_data/{user_id}`
+  - **Parameters:**
+    - `user_id`: Unique identifier for the user.
+  - **Response:** Returns a message indicating the number of deleted predictions.
+
+### 6. Get Latest News
+- **GET** `/news/`
+  - Returns the latest news articles related to plant health.
+
+## Deployment
+
+This application deployed on Google Cloud Run. The workflow for building and deploying the Docker container is included in the repository.

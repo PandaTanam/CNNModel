@@ -1,7 +1,5 @@
 # Plant Disease Identification API
 
-Welcome to the Plant Disease Identification API! 🌱
-
 This API is designed to help users identify diseases in plants (specifically mango, tomato, and chili) by uploading images. It utilizes machine learning models to predict the disease and provides treatment suggestions based on the identified disease.
 
 ## Features
@@ -105,5 +103,4 @@ This API is designed to help users identify diseases in plants (specifically man
 ## Deployment
 
 This application deployed on Google Cloud Run. The workflow for building and deploying the Docker container is included in the repository.
-![PlantCare Cloud Architecture](https://github.com/user-attachments/assets/3e217187-7918-47f1-9294-1babc6ad8fac)
-
+![PlantCare Cloud Architecture](https://github.com/user-attachments/assets/7bf64008-d189-466d-8179-0fb426e00bb6)

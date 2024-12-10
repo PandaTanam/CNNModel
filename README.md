@@ -105,3 +105,5 @@ This API is designed to help users identify diseases in plants (specifically man
 ## Deployment
 
 This application deployed on Google Cloud Run. The workflow for building and deploying the Docker container is included in the repository.
+![PlantCare Cloud Architecture](https://github.com/user-attachments/assets/3e217187-7918-47f1-9294-1babc6ad8fac)
+

@@ -12,7 +12,8 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing import image
-import google.generativeai as genai
+import vertexai
+from vertexai.generative_models import GenerativeModel
 from google.cloud import storage, firestore
 import firebase_admin
 from firebase_admin import credentials, firestore
@@ -123,8 +124,8 @@ async def predict(file: UploadFile = File(...), plant_type: str = Form(...), use
 
 async def generate_treatment(disease: str, plant: str, user_id: str) -> str:
     """Generate treatment suggestions based on the disease and plant type."""
-    genai.configure(api_key="AIzaSyCXrHQKYgn2VWxe3iGaxz7y55U9ogdJU3I")  
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    # genai.configure(api_key="AIzaSyCXrHQKYgn2VWxe3iGaxz7y55U9ogdJU3I")  
+    model = GenerativeModel("gemini-1.5-flash-002")
 
     prompt = f"Langkah-langkah mengatasi/merawat {plant} yang terkena penyakit {disease} dengan penjelasan singkat dan tepat dalam bentuk paragraf"
 

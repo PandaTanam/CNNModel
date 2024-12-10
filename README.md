@@ -28,10 +28,7 @@ To get started with the models, follow these steps:
     ```
 
 2. **Install Dependencies:**
-   Make sure you have Python installed. Then, install the required packages using pip:
-   ```bash
-   pip install -r requirements.txt
-   ```
+   Make sure you have Python installed. Then, install the required packages using pip
 
 3. **Run the Notebooks:**
     Open the Jupyter notebooks for each model to explore the data, training process, and evaluation metrics.

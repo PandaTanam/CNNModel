@@ -176,7 +176,7 @@ async def delete_prediction(user_id: str):
         predictions_ref = db.collection('predictions').where('user_id', '==', user_id).stream()
         deleted_count = 0
 
-        for doc in predictions_ref:
+        for doc in predictions_ref: 
             doc.reference.delete() 
             deleted_count += 1
 
@@ -189,17 +189,17 @@ async def delete_prediction(user_id: str):
         logging.error(f"Error deleting predictions: {str(e)}")
         raise HTTPException(status_code=500, detail=f'Error deleting predictions: {str(e)}')
     
-# @app.get('/news/')
-# async def get_news():
-#     """Fetch the latest news articles from the database."""
-#     news = db.collection('news').stream()
-#     results = []
+@app.get('/news/')
+async def get_news():
+    """Fetch the latest news articles from the database."""
+    news = db.collection('news').stream()
+    results = []
 
-#     for doc in news:
-#         data = doc.to_dict()
-#         data['id'] = doc.id 
-#         results.append(data)
+    for doc in news:
+        data = doc.to_dict()
+        data['id'] = doc.id 
+        results.append(data)
 
-#     return JSONResponse(content=results)
+    return {"news": results} 
 
 # uvicorn.run(app, host="127.0.0.1", port=8080)

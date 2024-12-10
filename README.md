@@ -22,7 +22,7 @@ To get started with the models, follow these steps:
 
 1. **Clone the Repository:**
     ```bash
-    git clone https://github.com/PlantCare/plant-disease-identification-model.git
+    git clone https://github.com/PlantCare-Bangkit/Plant-Disease-Identification-Model.git
     
     cd plant-disease-identification-model
     ```

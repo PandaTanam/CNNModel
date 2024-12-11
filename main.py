@@ -12,13 +12,10 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing import image
-import vertexai
 from vertexai.generative_models import GenerativeModel
 from google.cloud import storage, firestore
 import firebase_admin
-from firebase_admin import credentials, firestore
-from dotenv import load_dotenv
-import uvicorn
+from firebase_admin import firestore
 
 app = FastAPI()
 
@@ -203,4 +200,6 @@ async def get_news():
 
     return {"news": results} 
 
-# uvicorn.run(app, host="127.0.0.1", port=8080)
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="127.0.0.1", port=8080)

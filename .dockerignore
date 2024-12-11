@@ -4,3 +4,5 @@ __pycache__
 .env
 .git
 .github/workflows/deploy.yml  # Optional: Ignore workflow file if not needed in the image
+.gitignore
+README.md
